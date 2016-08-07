@@ -1,6 +1,7 @@
 package none.test;
 
 import processing.core.PApplet;
+import processing.core.PImage;
 import processing.core.PVector;
 import processing.core.PGraphics;
 
@@ -10,19 +11,25 @@ import processing.core.PGraphics;
 
 public class CellMesh {
 
-    private PVector meshDims = new PVector(1, 1);
+    private PVector meshDims = new PVector(1, 1), meshLoc = new PVector(0, 0);
     private PGraphics screen;
-    private PApplet display;
     private DisplayableCell first, curRow, curCol;
     private float zoomLevel = 1;
     private boolean newStateAvailable = true, periodic = false;
 
     public CellMesh(PApplet display_, boolean state, PVector position_,
-                    PVector dims_, Color stroke_, PVector meshDims_) {
-        first = new DisplayableCell(display_, state, null, position_, dims_, stroke_);
+                    PVector dims_, Color stroke_, PVector meshDims_,
+                    PVector meshLoc_) {
+        double scalingX = 1920, scalingY = 1080;
+        scalingX /= display_.displayWidth;
+        scalingY /= display_.displayHeight;
+        meshLoc = new PVector(meshLoc_.x * (float) scalingX, meshLoc_.y * (float) scalingY);
+        first = new DisplayableCell(state, null,
+                new PVector(position_.x * (float) scalingX, position_.y * (float) scalingY),
+                new PVector(dims_.x * (float) (scalingX * scalingY),
+                        dims_.y * (float) (scalingY * scalingX)), stroke_);
         meshDims = meshDims_;
-        display = display_;
-        screen = display.createGraphics((int) meshDims_.x, (int) meshDims_.y);
+        screen = display_.createGraphics((int) meshDims.x, (int) meshDims.y);
     }
 
     public void createMesh(int sep) {
@@ -32,14 +39,17 @@ public class CellMesh {
         curCol = first;
         for (int i = 1; i < (int) meshDims.x; i++) {
             curCol.setRight(
-                    new DisplayableCell(first.getScreen(), (false), first, new PVector(first.getDims().x * sep * i, 0),
-                            new PVector(first.getDims().x, first.getDims().y), first.getStrokeColour()));
+                    new DisplayableCell((false), first,
+                            new PVector(first.getDims().x * sep * i, 0),
+                            new PVector(first.getDims().x, first.getDims().y),
+                            first.getStrokeColour()));
             curCol.getRight().setLeft(curCol);
             curRow = curCol;
             for (int k = 1; k < (int) meshDims.y; k++) {
-                curRow.setBottom(new DisplayableCell(first.getScreen(), (false), first,
+                curRow.setBottom(new DisplayableCell((false), first,
                         new PVector(curCol.getRelPosition().x, first.getDims().y * sep * k),
-                        new PVector(first.getDims().x, first.getDims().y), first.getStrokeColour()));
+                        new PVector(first.getDims().x, first.getDims().y),
+                        first.getStrokeColour()));
                 curRow.getBottom().setTop(curRow);
                 curRow = curRow.getBottom();
                 curRow.setLeft(curRow.getTop().getLeft().getBottom());
@@ -51,9 +61,10 @@ public class CellMesh {
         }
         curRow = curCol;
         for (int k = 1; k < (int) meshDims.y; k++) {
-            curRow.setBottom(new DisplayableCell(first.getScreen(), (false), first,
+            curRow.setBottom(new DisplayableCell((false), first,
                     new PVector(curCol.getRelPosition().x, first.getDims().y * sep * k),
-                    new PVector(first.getDims().x, first.getDims().y), first.getStrokeColour()));
+                    new PVector(first.getDims().x, first.getDims().y),
+                    first.getStrokeColour()));
             curRow.getBottom().setTop(curRow);
             curRow = curRow.getBottom();
             curRow.setLeft(curRow.getTop().getLeft().getBottom());
@@ -77,21 +88,22 @@ public class CellMesh {
         }
     }
 
-    public void displayMesh() {
+    public void displayMesh(PApplet display) {
         if (newStateAvailable) {
-            screen.beginDraw();
+            first.setAbsPosition(meshLoc);
             curRow = first;
             if (meshDims.x * meshDims.y < 10000) {
-                for (int i = 0; i < screen.width; i++) {
+                for (int i = 0; i < meshDims.x; i++) {
                     curCol = curRow;
-                    for (int k = 0; k < screen.height; k++) {
+                    for (int k = 0; k < meshDims.y; k++) {
                         curCol.updateState();
-                        curCol.display();
+                        curCol.display(display);
                         curCol = curCol.getRight();
                     }
                     curRow = curRow.getBottom();
                 }
             } else {
+                screen.beginDraw();
                 screen.loadPixels();
                 for (int i = 0; i < screen.width; i++) {
                     curCol = curRow;
@@ -104,12 +116,13 @@ public class CellMesh {
                     curRow = curRow.getBottom();
                 }
                 screen.updatePixels();
+                screen.endDraw();
+                display.image(screen, meshLoc.x, meshLoc.y,
+                        meshDims.x * zoomLevel, meshDims.y * zoomLevel);
             }
-            screen.endDraw();
             newStateAvailable = false;
         }
-        display.image(screen, first.getAbsPosition().x, first.getAbsPosition().y,
-                meshDims.x * zoomLevel,meshDims.y * zoomLevel);
+
     }
 
     public void updateMesh() {
@@ -142,7 +155,7 @@ public class CellMesh {
         newStateAvailable = true;
     }
 
-    public void screenShot() {
+    public void screenShot(PApplet display) {
         screen.save(display.day() + "d_" + display.month() + "m_" + display.year()
                     + "yr_" + display.hour() + "h_" + display.minute() + "min.bmp");
     }
@@ -225,7 +238,7 @@ public class CellMesh {
         periodic = !periodic;
     }
 
-    public void checkPeriodicBoundaryConditions() {
+    public void checkPeriodicBoundaryConditions(PApplet display) {
         curCol = getCell(0, 0);
         curRow = getCell(0, (int) meshDims.y);
         for (int i = 0; i < meshDims.x; i++) {
@@ -290,14 +303,6 @@ public class CellMesh {
         this.screen = screen;
     }
 
-    public PApplet getDisplay() {
-        return display;
-    }
-
-    public void setDisplay(PApplet display) {
-        this.display = display;
-    }
-
     public DisplayableCell getCurRow() {
         return curRow;
     }
@@ -320,5 +325,29 @@ public class CellMesh {
 
     public void setZoomLevel(float zoomLevel) {
         this.zoomLevel = zoomLevel;
+    }
+
+    public PVector getMeshLoc() {
+        return meshLoc;
+    }
+
+    public void setMeshLoc(PVector meshLoc) {
+        this.meshLoc = meshLoc;
+    }
+
+    public boolean isNewStateAvailable() {
+        return newStateAvailable;
+    }
+
+    public void setNewStateAvailable(boolean newStateAvailable) {
+        this.newStateAvailable = newStateAvailable;
+    }
+
+    public boolean isPeriodic() {
+        return periodic;
+    }
+
+    public void setPeriodic(boolean periodic) {
+        this.periodic = periodic;
     }
 }

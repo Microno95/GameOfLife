@@ -1,6 +1,7 @@
 package none.test;
 
 import processing.core.PApplet;
+import processing.core.PConstants;
 import processing.core.PVector;
 import android.view.MotionEvent;
 
@@ -21,7 +22,7 @@ import android.view.MotionEvent;
 public class GoL extends PApplet {
 
 	public void settings() {
-		size(1080, 1920);
+		size(displayHeight, displayWidth, PConstants.P3D);
 	}
 
 	static int genStepFPS = 1;
@@ -36,9 +37,9 @@ public class GoL extends PApplet {
 		frameRate(60);
 		background(0);
 		GoL_Mesh = new CellMesh(this, false, new PVector(40, 40), new PVector(10, 10),
-								new Color(128, 128, 128, 80), new PVector(20, 20));
+				new Color(128, 128, 128, 80), new PVector(20, 20), new PVector(40, 40));
 		GoL_Mesh.createMesh(1);
-		GoL_Mesh.togglePeriodicBoundaryConditions();
+//		GoL_Mesh.togglePeriodicBoundaryConditions();
 
 //		DisplayableCell baseCell = GoL_Mesh.getFirst().getLowerRight().getLowerRight()
 //								.getLowerRight().getLowerRight();
@@ -63,7 +64,7 @@ public class GoL extends PApplet {
         GoL_Mesh.getCell(2, 3).setState(true);
         GoL_Mesh.getCell(1, 3).setState(true);
 
-        GoL_Mesh.checkPeriodicBoundaryConditions();
+//        GoL_Mesh.checkPeriodicBoundaryConditions(this);
 
 	}
 
@@ -77,21 +78,22 @@ public class GoL extends PApplet {
 				if (mt[2].touched == false && mt[1].touched == true) {
 					GoL_Mesh.setZoomLevel(GoL_Mesh.getZoomLevel() +
                             inc * dist(mt[0].motionX, mt[0].motionY, mt[1].motionX, mt[1].motionY));
-					GoL_Mesh.getFirst().setAbsPosition(new PVector(mt[0].motionX / 2 + mt[1].motionX / 2, mt[0].motionY / 2 + mt[1].motionY / 2));
+					GoL_Mesh.setMeshLoc(new PVector(mt[0].motionX / 2 + mt[1].motionX / 2, mt[0].motionY / 2 + mt[1].motionY / 2));
 				} else if (mt[2].touched == true && mt[1].touched == true) {
 					GoL_Mesh.setZoomLevel(GoL_Mesh.getZoomLevel() -
                             inc * dist(mt[0].motionX, mt[0].motionY, mt[1].motionX, mt[1].motionY));
-					GoL_Mesh.getFirst().setAbsPosition(new PVector(mt[0].motionX / 2 + mt[1].motionX / 2, mt[0].motionY / 2 + mt[1].motionY / 2));
+					GoL_Mesh.setMeshLoc(new PVector(mt[0].motionX / 2 + mt[1].motionX / 2, mt[0].motionY / 2 + mt[1].motionY / 2));
 				} else {
-					GoL_Mesh.getFirst().setRelPosition(new PVector(mouseX - pmouseX, mouseY - pmouseY));
+					GoL_Mesh.setMeshLoc(new PVector(mouseX, mouseY));
 				}
 			}
 		}
-        GoL_Mesh.displayMesh();
-		textSize(28);
+        GoL_Mesh.displayMesh(this);
+		textSize(28 * (float) (1920 * 1080) / (displayHeight * displayWidth));
 		fill(255);
-		text("FPS: " + frameRate, 0, 28);
-		text("GenStep: " + genStepFPS, width - 200, 28);
+		text("FPS: " + frameRate, 0, 28 * (float) 1920 / displayHeight);
+		text("GenStep: " + genStepFPS, (width - 200) * (float) 1080 / displayWidth,
+                28 * (float) 1920 / displayHeight);
 	}
 
 	public void keyPressed() {
@@ -99,7 +101,7 @@ public class GoL extends PApplet {
 			runGen = !runGen;
 		}
 		if (key == 's' || key == 'S') {
-			GoL_Mesh.screenShot();
+			GoL_Mesh.screenShot(this);
 		}
 		if (keyCode == UP) {
 			genStepFPS++;

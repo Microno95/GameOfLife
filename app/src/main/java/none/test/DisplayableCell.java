@@ -1,6 +1,7 @@
 package none.test;
 
 import processing.core.PApplet;
+import processing.core.PGraphics;
 import processing.core.PVector;
 
 public class DisplayableCell extends Cell {
@@ -8,12 +9,11 @@ public class DisplayableCell extends Cell {
 	private DisplayableCell left = null, right = null, top = null, bottom = null, upperLeft = null, lowerLeft = null,
 			upperRight = null, lowerRight = null, allFather = null;
 	private PVector position, dims;
-	private PApplet screen;
 	private Color strokeColour;
 
-	public DisplayableCell(PApplet screen_, boolean state, DisplayableCell allFather_, PVector position_, PVector dims_, Color stroke_) {
+	public DisplayableCell(boolean state, DisplayableCell allFather_,
+                           PVector position_, PVector dims_, Color stroke_) {
 		super(state);
-		screen = screen_;
 		position = position_;
 		dims = dims_;
 		strokeColour = stroke_;
@@ -32,7 +32,7 @@ public class DisplayableCell extends Cell {
 		}
 	}
 
-	public DisplayableCell display() {
+	public DisplayableCell display(PApplet screen) {
 		if (getState()) {
 			screen.fill(255);
 		} else {
@@ -47,6 +47,25 @@ public class DisplayableCell extends Cell {
 			screen.rect(allFather.getAbsPosition().x + position.x, allFather.getAbsPosition().y + position.y, dims.x, dims.y);
 		}
 		return this;
+	}
+
+	public DisplayableCell display(PGraphics screen) {
+        screen.beginDraw();
+        if (getState()) {
+            screen.fill(255);
+        } else {
+            screen.fill(0);
+        }
+        screen.stroke(strokeColour.getRGB());
+        screen.strokeWeight(1);
+        screen.rectMode(PApplet.CENTER);
+        if (allFather == this) {
+            screen.rect(position.x, position.y, dims.x, dims.y);
+        } else {
+            screen.rect(allFather.getAbsPosition().x + position.x, allFather.getAbsPosition().y + position.y, dims.x, dims.y);
+        }
+        screen.endDraw();
+        return this;
 	}
 	
 	//nay nay
@@ -183,10 +202,6 @@ public class DisplayableCell extends Cell {
 		}
 	}
 
-	public PApplet getScreen() {
-		return screen;
-	}
-
 	public Color getStrokeColour() {
 		return strokeColour;
 	}
@@ -258,10 +273,6 @@ public class DisplayableCell extends Cell {
 		} else {
 			position = PVector.add(position_, position);
 		}
-	}
-
-	public void setScreen(PApplet screen) {
-		this.screen = screen;
 	}
 
 	public void setStrokeColour(Color strokeColour) {
