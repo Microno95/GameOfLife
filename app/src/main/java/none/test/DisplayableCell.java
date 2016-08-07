@@ -50,7 +50,6 @@ public class DisplayableCell extends Cell {
 	}
 
 	public DisplayableCell display(PGraphics screen) {
-        screen.beginDraw();
         if (getState()) {
             screen.fill(255);
         } else {
@@ -64,7 +63,6 @@ public class DisplayableCell extends Cell {
         } else {
             screen.rect(allFather.getAbsPosition().x + position.x, allFather.getAbsPosition().y + position.y, dims.x, dims.y);
         }
-        screen.endDraw();
         return this;
 	}
 	

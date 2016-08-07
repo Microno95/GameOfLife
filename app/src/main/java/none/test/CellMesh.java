@@ -1,7 +1,6 @@
 package none.test;
 
 import processing.core.PApplet;
-import processing.core.PImage;
 import processing.core.PVector;
 import processing.core.PGraphics;
 
@@ -174,67 +173,68 @@ public class CellMesh {
         return current;
     }
 
-    public void togglePeriodicBoundaryConditions() {
+    public void togglePeriodicBoundaryConditions(PApplet display) {
         curCol = getCell(0, 0);
         curRow = getCell(0, (int) meshDims.y);
         for (int i = 0; i < meshDims.x; i++) {
-            if (!periodic) {
-                curCol.setTop(curRow);
-                curRow.setBottom(curCol);
-            } else {
-                curCol.setTop(curCol);
-                curRow.setBottom(curRow);
-            }
+            curCol.setTop(curRow);
+            curRow.setBottom(curCol);
+//            if (!periodic) {
+//
+//            } else {
+//                curCol.setTop(curCol);
+//                curRow.setBottom(curRow);
+//            }
             curCol = curCol.getRight();
             curRow = curRow.getRight();
         }
-        curCol = getCell(0, 0);
-        curRow = getCell((int) meshDims.x, 0);
-        for (int i = 0; i < meshDims.y; i++) {
-            if (!periodic) {
-                curCol.setLeft(curRow);
-                curRow.setRight(curCol);
-            } else {
-                curCol.setLeft(curCol);
-                curRow.setRight(curRow);
-            }
-            curCol = curCol.getBottom();
-            curRow = curRow.getBottom();
-        }
-        curCol = getCell(0, 0);
-        curRow = getCell(0, (int) meshDims.y);
-        for (int i = 0; i < meshDims.x; i++) {
-            if (!periodic) {
-                curCol.setUpperLeft(curRow.getLeft());
-                curCol.setUpperRight(curRow.getRight());
-                curRow.setLowerLeft(curCol.getLeft());
-                curRow.setLowerRight(curCol.getRight());
-            } else {
-                curCol.setUpperLeft(curCol);
-                curCol.setUpperRight(curCol);
-                curRow.setLowerLeft(curRow);
-                curRow.setLowerRight(curRow);
-            }
-            curCol = curCol.getRight();
-            curRow = curRow.getRight();
-        }
-        curCol = getCell(0, 0);
-        curRow = getCell((int) meshDims.x, 0);
-        for (int i = 0; i < meshDims.y; i++) {
-            if (!periodic) {
-                curCol.setUpperLeft(curRow.getTop());
-                curCol.setLowerLeft(curRow.getBottom());
-                curRow.setUpperRight(curCol.getTop());
-                curRow.setLowerRight(curCol.getBottom());
-            } else {
-                curCol.setUpperLeft(curCol);
-                curCol.setLowerLeft(curCol);
-                curRow.setUpperRight(curRow);
-                curRow.setLowerRight(curRow);
-            }
-            curCol = curCol.getBottom();
-            curRow = curRow.getBottom();
-        }
+//        curCol = getCell(0, 0);
+//        curRow = getCell((int) meshDims.x, 0);
+//        for (int i = 0; i < meshDims.y; i++) {
+//            if (!periodic) {
+//                curCol.setLeft(curRow);
+//                curRow.setRight(curCol);
+//            } else {
+//                curCol.setLeft(curCol);
+//                curRow.setRight(curRow);
+//            }
+//            curCol = curCol.getBottom();
+//            curRow = curRow.getBottom();
+//        }
+//        curCol = getCell(0, 0);
+//        curRow = getCell(0, (int) meshDims.y);
+//        for (int i = 0; i < meshDims.x; i++) {
+//            if (!periodic) {
+//                curCol.setUpperLeft(curRow.getLeft());
+//                curCol.setUpperRight(curRow.getRight());
+//                curRow.setLowerLeft(curCol.getLeft());
+//                curRow.setLowerRight(curCol.getRight());
+//            } else {
+//                curCol.setUpperLeft(curCol);
+//                curCol.setUpperRight(curCol);
+//                curRow.setLowerLeft(curRow);
+//                curRow.setLowerRight(curRow);
+//            }
+//            curCol = curCol.getRight();
+//            curRow = curRow.getRight();
+//        }
+//        curCol = getCell(0, 0);
+//        curRow = getCell((int) meshDims.x, 0);
+//        for (int i = 0; i < meshDims.y; i++) {
+//            if (!periodic) {
+//                curCol.setUpperLeft(curRow.getTop());
+//                curCol.setLowerLeft(curRow.getBottom());
+//                curRow.setUpperRight(curCol.getTop());
+//                curRow.setLowerRight(curCol.getBottom());
+//            } else {
+//                curCol.setUpperLeft(curCol);
+//                curCol.setLowerLeft(curCol);
+//                curRow.setUpperRight(curRow);
+//                curRow.setLowerRight(curRow);
+//            }
+//            curCol = curCol.getBottom();
+//            curRow = curRow.getBottom();
+//        }
         periodic = !periodic;
     }
 
@@ -247,35 +247,34 @@ public class CellMesh {
             curCol = curCol.getRight();
             curRow = curRow.getRight();
         }
-        curCol = getCell(0, 0);
-        curRow = getCell((int) meshDims.x, 0);
-        for (int i = 0; i < meshDims.y; i++) {
-            display.println("Left Check", curCol.getLeft() == curRow,
-                    "Right Check", curCol == curRow.getRight());
-            curCol = curCol.getBottom();
-            curRow = curRow.getBottom();
-        }
-        curCol = getCell(0, 0);
-        curRow = getCell(0, (int) meshDims.y);
-        for (int i = 0; i < meshDims.x; i++) {
-            display.println("UpperLeft Check", curCol.getUpperLeft() == curRow.getLeft(),
-                    "UpperRight Check", curCol.getUpperRight() == curRow.getRight(),
-                    "LowerLeft Check", curCol.getLeft() == curRow.getLowerLeft(),
-                    "LowerRight Check", curCol.getRight() == curRow.getLowerRight());
-            curCol = curCol.getRight();
-            curRow = curRow.getRight();
-        }
-        curCol = getCell(0, 0);
-        curRow = getCell((int) meshDims.x, 0);
-        for (int i = 0; i < meshDims.y; i++) {
-            display.println("UpperLeft Check", curCol.getUpperLeft() == curRow.getTop(),
-                    "UpperRight Check", curCol.getLowerLeft() == curRow.getBottom(),
-                    "LowerLeft Check", curCol.getTop() == curRow.getUpperRight(),
-                    "LowerRight Check", curCol.getBottom() == curRow.getLowerRight());
-            curCol = curCol.getBottom();
-            curRow = curRow.getBottom();
-        }
-        periodic = !periodic;
+//        curCol = getCell(0, 0);
+//        curRow = getCell((int) meshDims.x, 0);
+//        for (int i = 0; i < meshDims.y; i++) {
+//            display.println("Left Check", curCol.getLeft() == curRow,
+//                    "Right Check", curCol == curRow.getRight());
+//            curCol = curCol.getBottom();
+//            curRow = curRow.getBottom();
+//        }
+//        curCol = getCell(0, 0);
+//        curRow = getCell(0, (int) meshDims.y);
+//        for (int i = 0; i < meshDims.x; i++) {
+//            display.println("UpperLeft Check", curCol.getUpperLeft() == curRow.getLeft(),
+//                    "UpperRight Check", curCol.getUpperRight() == curRow.getRight(),
+//                    "LowerLeft Check", curCol.getLeft() == curRow.getLowerLeft(),
+//                    "LowerRight Check", curCol.getRight() == curRow.getLowerRight());
+//            curCol = curCol.getRight();
+//            curRow = curRow.getRight();
+//        }
+//        curCol = getCell(0, 0);
+//        curRow = getCell((int) meshDims.x, 0);
+//        for (int i = 0; i < meshDims.y; i++) {
+//            display.println("UpperLeft Check", curCol.getUpperLeft() == curRow.getTop(),
+//                    "UpperRight Check", curCol.getLowerLeft() == curRow.getBottom(),
+//                    "LowerLeft Check", curCol.getTop() == curRow.getUpperRight(),
+//                    "LowerRight Check", curCol.getBottom() == curRow.getLowerRight());
+//            curCol = curCol.getBottom();
+//            curRow = curRow.getBottom();
+//        }
     }
 
 

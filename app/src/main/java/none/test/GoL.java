@@ -22,7 +22,7 @@ import android.view.MotionEvent;
 public class GoL extends PApplet {
 
 	public void settings() {
-		size(displayHeight, displayWidth, PConstants.P3D);
+		size(displayHeight, displayWidth, JAVA2D);
 	}
 
 	static int genStepFPS = 1;
@@ -39,7 +39,8 @@ public class GoL extends PApplet {
 		GoL_Mesh = new CellMesh(this, false, new PVector(40, 40), new PVector(10, 10),
 				new Color(128, 128, 128, 80), new PVector(20, 20), new PVector(40, 40));
 		GoL_Mesh.createMesh(1);
-//		GoL_Mesh.togglePeriodicBoundaryConditions();
+		GoL_Mesh.togglePeriodicBoundaryConditions(this);
+		GoL_Mesh.checkPeriodicBoundaryConditions(this);
 
 //		DisplayableCell baseCell = GoL_Mesh.getFirst().getLowerRight().getLowerRight()
 //								.getLowerRight().getLowerRight();
@@ -64,14 +65,13 @@ public class GoL extends PApplet {
         GoL_Mesh.getCell(2, 3).setState(true);
         GoL_Mesh.getCell(1, 3).setState(true);
 
-//        GoL_Mesh.checkPeriodicBoundaryConditions(this);
-
 	}
 
 	public void draw() {
         background(0);
 		if (frameCount % genStepFPS == 0 && runGen) {
 			GoL_Mesh.updateMesh();
+			GoL_Mesh.displayMesh(this);
 		}
 		if (mousePressed) {
 			for (int i=0; i < maxTouchEvents; i++) {
@@ -88,7 +88,6 @@ public class GoL extends PApplet {
 				}
 			}
 		}
-        GoL_Mesh.displayMesh(this);
 		textSize(28 * (float) (1920 * 1080) / (displayHeight * displayWidth));
 		fill(255);
 		text("FPS: " + frameRate, 0, 28 * (float) 1920 / displayHeight);
